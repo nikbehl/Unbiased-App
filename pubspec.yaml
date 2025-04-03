@@ -1,0 +1,68 @@
+name: frontend_dev_guide
+description: A comprehensive guide for frontend developers.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# Version information
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  groq: ^1.0.0
+  dio: ^5.8.0+1
+
+  # Material Design icons
+  cupertino_icons: ^1.0.5
+  
+  # UI components and utilities
+  google_fonts: ^4.0.4 # For custom fonts
+  flutter_svg: ^2.0.7 # For SVG rendering
+  url_launcher: ^6.1.11 # For launching URLs
+  
+  # State management
+  provider: ^6.0.5 # For state management
+  shared_preferences: ^2.2.0 # For local storage of preferences
+  
+  # UI animations and effects
+  flutter_staggered_animations: ^1.1.1 # For staggered animations
+  
+  # Platform-specific utilities
+  device_info_plus: ^9.0.3 # For device information
+  package_info_plus: ^4.1.0 # For app package information
+  
+  # Networking
+  http: ^1.1.0 # For HTTP requests
+  
+  # Development tooling
+  logging: ^1.2.0 # For logging
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  # Development helpers
+  flutter_lints: ^2.0.2 # Recommended lints for good coding practices
+
+# Flutter configuration
+flutter:
+  uses-material-design: true
+  
+  # App assets
+  assets:
+    - assets/icons/
+    - assets/images/
+    
+  # Custom fonts (optional)
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        # - asset: assets/fonts/Roboto-Medium.ttf
+        #   weight: 500
+        # - asset: assets/fonts/Roboto-Light.ttf
+        #   weight: 300
