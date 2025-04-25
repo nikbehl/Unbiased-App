@@ -13,6 +13,10 @@ dependencies:
     sdk: flutter
   groq: ^1.0.0
   dio: ^5.8.0+1
+  share_plus: ^11.0.0
+  flutter_rating_bar: ^4.0.1
+  percent_indicator: ^4.2.5
+
 
   # Material Design icons
   cupertino_icons: ^1.0.5
