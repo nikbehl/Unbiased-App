@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_dev_guide/pages/frontend_dashboard_page.dart';
-import 'package:frontend_dev_guide/pages/resouces_page.dart';
-import 'package:frontend_dev_guide/pages/road_map_page.dart';
-import 'package:frontend_dev_guide/pages/setting_page.dart';
-import 'package:frontend_dev_guide/pages/tech_stack_page.dart';
-import 'package:frontend_dev_guide/pages/tools_page.dart';
-import 'package:frontend_dev_guide/utils/chatgpt_assistance.dart';
-import 'package:frontend_dev_guide/utils/tech_search_delegate.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_dashboard_page.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_resource_page.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_roadmap_page.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_tech_page.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_tool_page.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+import 'package:frontend_dev_guide/pages/setting_page.dart';
+import 'package:frontend_dev_guide/utils/backend_tech_delegate.dart';
+import 'package:frontend_dev_guide/utils/tech_search_delegate.dart';
+import 'package:frontend_dev_guide/utils/chatgpt_assistance.dart';
+
+class BackendHomePage extends StatefulWidget {
+  const BackendHomePage({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<BackendHomePage> createState() => _BackendHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _BackendHomePageState extends State<BackendHomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const FrontendDashboardPage(),
-    const TechStackPage(),
-    const ToolsPage(),
-    const ResourcesPage(),
-    const RoadmapPage(),
+    const BackendDashboardPage(),
+    const BackendTechPage(),
+    const BackendToolsPage(),
+    const BackendResourcesPage(),
+    const BackendRoadmapPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -36,14 +38,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Frontend Developer Guide'),
+        title: const Text('Backend Developer Guide'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
               showSearch(
                 context: context,
-                delegate: TechSearchDelegate(),
+                delegate: BackendTechSearchDelegate(),
               );
             },
           ),
@@ -88,12 +90,13 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // Open ChatGPT Assistant with backend context
           Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => const Chatgpt(
-                      context: AssistantContext
-                          .frontend, // Explicitly set frontend context
+                      context:
+                          AssistantContext.backend, // Specify backend context
                     )),
           );
         },

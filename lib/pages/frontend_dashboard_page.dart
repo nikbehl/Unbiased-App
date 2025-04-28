@@ -5,8 +5,8 @@ import 'package:frontend_dev_guide/widgets/state_item.dart';
 import 'package:frontend_dev_guide/widgets/trending_tech_card.dart';
 import 'package:frontend_dev_guide/widgets/update_card.dart';
 
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+class FrontendDashboardPage extends StatelessWidget {
+  const FrontendDashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

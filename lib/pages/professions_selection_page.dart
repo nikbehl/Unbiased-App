@@ -63,8 +63,10 @@ class ProfessionSelectionPage extends StatelessWidget {
                       ProfessionCard(
                         title: 'Backend Developer',
                         icon: Icons.storage_outlined,
-                        isAvailable: false,
-                        onTap: () {},
+                        isAvailable: true,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/backend_guide');
+                        },
                       ),
 
                       // UI/UX Designer - Coming Soon

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend_dev_guide/pages/backendpages/backend_home_page.dart';
 import 'package:frontend_dev_guide/pages/home_page.dart';
 import 'package:frontend_dev_guide/pages/professions_selection_page.dart';
 import 'package:frontend_dev_guide/utils/theme_provider.dart';
@@ -45,6 +46,7 @@ class TechCareerGuideApp extends StatelessWidget {
       routes: {
         '/': (context) => const ProfessionSelectionPage(),
         '/frontend_guide': (context) => const HomePage(),
+        '/backend_guide': (context) => const BackendHomePage(),
       },
     );
   }

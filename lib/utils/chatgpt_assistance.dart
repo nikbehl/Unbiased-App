@@ -1,10 +1,19 @@
+// Updated chatgpt_assistance.dart
+
 import 'package:flutter/material.dart';
 import 'package:frontend_dev_guide/utils/grokcloud.dart';
 import 'package:frontend_dev_guide/pages/detail_page.dart';
 import 'package:frontend_dev_guide/utils/ai_content_parser.dart';
 
+// Enum to specify the context of the AI assistant
+enum AssistantContext { frontend, backend }
+
 class Chatgpt extends StatefulWidget {
-  const Chatgpt({Key? key}) : super(key: key);
+  final AssistantContext context;
+
+  // Add context parameter with frontend as default
+  const Chatgpt({Key? key, this.context = AssistantContext.frontend})
+      : super(key: key);
 
   @override
   _ChatgptState createState() => _ChatgptState();
@@ -17,8 +26,9 @@ class _ChatgptState extends State<Chatgpt> {
   bool _isLoading = false;
   String selectedModel = "gpt-3.5-turbo";
 
-  // List of technologies to recognize in chat - expanded to catch more matches
-  final List<String> _techItems = [
+  // Lists of technologies to recognize in chat
+  // Frontend tech items
+  final List<String> _frontendTechItems = [
     'HTML5',
     'CSS3',
     'JavaScript',
@@ -53,16 +63,57 @@ class _ChatgptState extends State<Chatgpt> {
     'TS',
   ];
 
+  // Backend tech items
+  final List<String> _backendTechItems = [
+    'Node.js',
+    'Express',
+    'Django',
+    'Flask',
+    'Spring Boot',
+    'ASP.NET Core',
+    'Laravel',
+    'Ruby on Rails',
+    'NestJS',
+    'PostgreSQL',
+    'MongoDB',
+    'MySQL',
+    'Redis',
+    'GraphQL',
+    'REST API',
+    'REST',
+    'gRPC',
+    'Microservices',
+    'Docker',
+    'Kubernetes',
+    'AWS',
+    'Azure',
+    'Google Cloud',
+    'JWT',
+    'OAuth',
+    'WebSockets',
+    'Message Queues',
+    'RabbitMQ',
+    'Kafka',
+    'Python',
+    'Java',
+    'C#',
+    'Go',
+    'Rust',
+    'Node',
+    'Express'
+  ];
+
   @override
   void initState() {
     super.initState();
     fetchModels();
 
-    // Add welcome message
+    // Add context-specific welcome message
     _messages.add(
-      const ChatMessage(
-        text:
-            "Welcome to the AI Assistant! Ask me about any frontend technology like 'What is React?' or 'Explain TypeScript'.",
+      ChatMessage(
+        text: widget.context == AssistantContext.frontend
+            ? "Welcome to the AI Assistant! Ask me about any frontend technology like 'What is React?' or 'Explain TypeScript'."
+            : "Welcome to the AI Assistant! Ask me about any backend technology like 'What is Node.js?' or 'Explain PostgreSQL'.",
         isUser: false,
       ),
     );
@@ -88,18 +139,25 @@ class _ChatgptState extends State<Chatgpt> {
     _textController.clear();
     _scrollToBottom();
 
-    // Always treat queries as technology questions for navigation
-    // Either find a specific tech or use the entire query
-    String? techMatch = _findTechInQuery(text);
+    // Context-specific tech matching
+    List<String> techItemsToCheck = widget.context == AssistantContext.frontend
+        ? _frontendTechItems
+        : _backendTechItems;
+
+    // Find tech match
+    String? techMatch = _findTechInQuery(text, techItemsToCheck);
     String techToUse = techMatch ?? _extractMainTopic(text);
 
     debugPrint("Using technology: $techToUse for navigation");
 
-    // Format prompt for better structure regardless of match
+    // Format prompt based on context
+    String contextPrefix =
+        widget.context == AssistantContext.frontend ? "frontend" : "backend";
+
     String prompt =
-        "Please provide detailed information about $techToUse in frontend development. "
+        "Please provide detailed information about $techToUse in $contextPrefix development. "
         "Format your answer with these sections:\n"
-        "Description: [Explain what $techToUse is and its importance]\n"
+        "Description: [Explain what $techToUse is and its importance in $contextPrefix development]\n"
         "Code Example: [Show a simple code example using $techToUse]\n"
         "Resources: [List 3-5 useful resources for learning $techToUse]";
 
@@ -132,7 +190,7 @@ class _ChatgptState extends State<Chatgpt> {
               MaterialPageRoute(
                 builder: (context) => DetailPage(
                   title: techToUse,
-                  category: _getCategoryForTech(techToUse),
+                  category: _getCategoryForTech(techToUse, widget.context),
                   aiDescription: parsedContent['description'] as String,
                   aiCodeExample: parsedContent['codeExample'] as String,
                   aiResources:
@@ -207,11 +265,11 @@ class _ChatgptState extends State<Chatgpt> {
   }
 
   // Find if query is asking about a specific technology
-  String? _findTechInQuery(String query) {
+  String? _findTechInQuery(String query, List<String> techItems) {
     query = query.toLowerCase();
 
     // Look for technology matches - case insensitive
-    for (var tech in _techItems) {
+    for (var tech in techItems) {
       if (query.contains(tech.toLowerCase())) {
         debugPrint("Found tech match: $tech");
         return tech;
@@ -221,46 +279,100 @@ class _ChatgptState extends State<Chatgpt> {
     return null;
   }
 
-  // Get the category for a technology
-  String _getCategoryForTech(String tech) {
+  // Get the category for a technology based on context
+  String _getCategoryForTech(String tech, AssistantContext context) {
     final techLower = tech.toLowerCase();
 
-    if (techLower.contains('html') ||
-        techLower.contains('css') ||
-        techLower.contains('javascript') ||
-        techLower.contains('typescript') ||
-        techLower == 'js' ||
-        techLower == 'ts') {
-      return 'Language';
-    } else if (techLower.contains('react') ||
-        techLower.contains('angular') ||
-        techLower.contains('vue') ||
-        techLower.contains('svelte') ||
-        techLower.contains('next')) {
-      return 'Framework';
-    } else if (techLower.contains('redux') || techLower.contains('mobx')) {
-      return 'State Management';
-    } else if (techLower.contains('tailwind') || techLower.contains('styled')) {
-      return 'Styling';
-    } else if (techLower.contains('webpack') || techLower.contains('vite')) {
-      return 'Build Tool';
-    } else if (techLower.contains('jest') || techLower.contains('cypress')) {
-      return 'Testing';
-    } else if (techLower.contains('git')) {
-      return 'Version Control';
-    } else if (techLower.contains('graphql') || techLower.contains('rest')) {
-      return 'API';
-    } else if (techLower.contains('node') || techLower.contains('express')) {
-      return 'Backend';
+    if (context == AssistantContext.frontend) {
+      // Frontend categories
+      if (techLower.contains('html') ||
+          techLower.contains('css') ||
+          techLower.contains('javascript') ||
+          techLower.contains('typescript') ||
+          techLower == 'js' ||
+          techLower == 'ts') {
+        return 'Language';
+      } else if (techLower.contains('react') ||
+          techLower.contains('angular') ||
+          techLower.contains('vue') ||
+          techLower.contains('svelte') ||
+          techLower.contains('next')) {
+        return 'Framework';
+      } else if (techLower.contains('redux') || techLower.contains('mobx')) {
+        return 'State Management';
+      } else if (techLower.contains('tailwind') ||
+          techLower.contains('styled')) {
+        return 'Styling';
+      } else if (techLower.contains('webpack') || techLower.contains('vite')) {
+        return 'Build Tool';
+      } else if (techLower.contains('jest') || techLower.contains('cypress')) {
+        return 'Testing';
+      } else if (techLower.contains('git')) {
+        return 'Version Control';
+      } else if (techLower.contains('graphql') || techLower.contains('rest')) {
+        return 'API';
+      } else if (techLower.contains('node') || techLower.contains('express')) {
+        return 'Backend';
+      }
+      return 'Frontend Technology';
+    } else {
+      // Backend categories
+      if (techLower.contains('javascript') ||
+          techLower.contains('python') ||
+          techLower.contains('java') ||
+          techLower.contains('c#') ||
+          techLower.contains('go') ||
+          techLower.contains('rust') ||
+          techLower.contains('php') ||
+          techLower.contains('ruby')) {
+        return 'Language';
+      } else if (techLower.contains('express') ||
+          techLower.contains('django') ||
+          techLower.contains('spring') ||
+          techLower.contains('asp.net') ||
+          techLower.contains('laravel') ||
+          techLower.contains('flask') ||
+          techLower.contains('nestjs') ||
+          techLower.contains('rails')) {
+        return 'Framework';
+      } else if (techLower.contains('sql') ||
+          techLower.contains('mongo') ||
+          techLower.contains('redis') ||
+          techLower.contains('cassandra') ||
+          techLower.contains('dynamo') ||
+          techLower.contains('elastic')) {
+        return 'Database';
+      } else if (techLower.contains('docker') ||
+          techLower.contains('kubernetes') ||
+          techLower.contains('aws') ||
+          techLower.contains('azure') ||
+          techLower.contains('cloud') ||
+          techLower.contains('ci/cd') ||
+          techLower.contains('terraform') ||
+          techLower.contains('serverless')) {
+        return 'Cloud & DevOps';
+      } else if (techLower.contains('rest') ||
+          techLower.contains('graphql') ||
+          techLower.contains('grpc') ||
+          techLower.contains('websocket') ||
+          techLower.contains('jwt') ||
+          techLower.contains('oauth') ||
+          techLower.contains('swagger') ||
+          techLower.contains('openapi') ||
+          techLower.contains('webhook')) {
+        return 'API';
+      }
+      return 'Backend Technology';
     }
-    return 'Frontend Technology';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Assistant'),
+        title: Text(widget.context == AssistantContext.frontend
+            ? 'Frontend AI Assistant'
+            : 'Backend AI Assistant'),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -287,13 +399,32 @@ class _ChatgptState extends State<Chatgpt> {
     );
   }
 
-  // Show tips dialog
+  // Show context-specific tips dialog
   void _showTipsDialog(BuildContext context) {
+    String contextName =
+        widget.context == AssistantContext.frontend ? 'Frontend' : 'Backend';
+
+    String example1 = widget.context == AssistantContext.frontend
+        ? 'What is React?'
+        : 'What is Node.js?';
+
+    String example2 = widget.context == AssistantContext.frontend
+        ? 'Explain TypeScript'
+        : 'Explain PostgreSQL';
+
+    String example3 = widget.context == AssistantContext.frontend
+        ? 'Tell me about Tailwind CSS'
+        : 'Tell me about Docker';
+
+    String example4 = widget.context == AssistantContext.frontend
+        ? 'How to use Redux?'
+        : 'How to use MongoDB?';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Tips for using AI Assistant'),
+          title: Text('Tips for using $contextName AI Assistant'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,14 +433,14 @@ class _ChatgptState extends State<Chatgpt> {
                 const Text(
                     'Simply type any query to navigate to a detail page:'),
                 const SizedBox(height: 8),
-                const Text('• What is React?'),
-                const Text('• Explain TypeScript'),
-                const Text('• Tell me about Tailwind CSS'),
-                const Text('• How to use Redux?'),
+                Text('• $example1'),
+                Text('• $example2'),
+                Text('• $example3'),
+                Text('• $example4'),
                 const SizedBox(height: 16),
-                const Text(
-                  'Any question will navigate you to a detail page with information about that technology!',
-                  style: TextStyle(fontStyle: FontStyle.italic),
+                Text(
+                  'Any question will navigate you to a detail page with information about that $contextName technology!',
+                  style: const TextStyle(fontStyle: FontStyle.italic),
                 ),
               ],
             ),
@@ -328,6 +459,10 @@ class _ChatgptState extends State<Chatgpt> {
   }
 
   Widget _buildTextComposer() {
+    String placeholder = widget.context == AssistantContext.frontend
+        ? 'Ask about any frontend technology...'
+        : 'Ask about any backend technology...';
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -336,13 +471,13 @@ class _ChatgptState extends State<Chatgpt> {
             child: TextField(
               controller: _textController,
               onSubmitted: _isLoading ? null : handleSubmitted,
-              decoration: const InputDecoration(
-                hintText: 'Ask about any technology...',
-                border: OutlineInputBorder(
+              decoration: InputDecoration(
+                hintText: placeholder,
+                border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8.0)),
                 ),
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
           ),
@@ -359,7 +494,7 @@ class _ChatgptState extends State<Chatgpt> {
   }
 }
 
-// ChatMessage UI
+// ChatMessage UI - no changes needed
 class ChatMessage extends StatelessWidget {
   final String text;
   final bool isUser;
